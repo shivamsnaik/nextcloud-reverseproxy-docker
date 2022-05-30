@@ -1,0 +1,3 @@
+# Sensitive information
+nginx_reverse_proxy/secrets
+nextcloud/secrets

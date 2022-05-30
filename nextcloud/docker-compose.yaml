@@ -1,0 +1,73 @@
+version: "3.7"
+
+volumes:
+  blockstorage:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "/mnt/blockstorage/nextcloud"
+  blockstorage_root1:
+  nextcloud_db_vol:
+
+networks:
+  proxy-network:
+    external: "true"
+
+secrets:
+  mqsql_root_password: 
+    file: ./secrets/mqsql_root_password.txt
+  mysql_password:
+    file: ./secrets/mysql_password.txt
+  mysql_database_name:
+    file: ./secrets/mysql_database_name.txt
+  mysql_username:
+    file: ./secrets/mysql_username.txt
+  mysql_hostname:
+    file: ./secrets/mysql_hostname.txt
+  letsencrypt_email:
+    file: ./secrets/letsencrypt_email.txt
+
+services:
+  nextcloud_db:
+    image: mariadb:10.5
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    volumes:
+      - nextcloud_db_vol:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: mqsql_root_password
+      MYSQL_PASSWORD: mysql_password
+      MYSQL_DATABASE: mysql_database_name
+      MYSQL_USER: mysql_username
+    networks:
+      - "proxy-network"
+
+  nextcloud:
+    image: "nextcloud:24.0.1"
+    container_name: "nextcloud"
+    restart: "always"
+    ports:
+      - 3000:80
+    links:
+      - nextcloud_db
+    volumes:
+      - blockstorage:/var/www/html/data
+      #- blockstorage_root1:/var/www/html
+    networks:
+      - "proxy-network"
+    environment:
+      MYSQL_PASSWORD: mysql_password
+      MYSQL_DATABASE: mysql_database_name
+      MYSQL_USER: mysql_username
+      MYSQL_HOST: mysql_hostname
+      VIRTUAL_HOST: "nextcloud.shivamnaik.de"
+      VIRTUAL_PORT: "80"
+      LETSENCRYPT_HOST: "nextcloud.shivamnaik.de"
+      LETSENCRYPT_EMAIL: letsencrypt_email
+      NEXTCLOUD_TRUSTED_DOMAINS: "nextcloud.shivamnaik.de"
+      NEXTCLOUD_DATA_DIR: /var/www/html/data
+      OVERWRITEPROTOCOL: https
+      OVERWRITECLIURL: https://nextcloud.shivamnaik.de
+
+  
