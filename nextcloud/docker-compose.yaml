@@ -15,18 +15,18 @@ networks:
     external: "true"
 
 secrets:
-  mqsql_root_password: 
-    file: ./secrets/mqsql_root_password.txt
+  mysql_root_password: 
+    file: ./secrets/mysql_root_password
   mysql_password:
-    file: ./secrets/mysql_password.txt
+    file: ./secrets/mysql_password
   mysql_database_name:
-    file: ./secrets/mysql_database_name.txt
+    file: ./secrets/mysql_database_name
   mysql_username:
-    file: ./secrets/mysql_username.txt
+    file: ./secrets/mysql_username
   mysql_hostname:
-    file: ./secrets/mysql_hostname.txt
+    file: ./secrets/mysql_hostname
   letsencrypt_email:
-    file: ./secrets/letsencrypt_email.txt
+    file: ./secrets/letsencrypt_email
 
 services:
   nextcloud_db:
@@ -36,12 +36,17 @@ services:
     volumes:
       - nextcloud_db_vol:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: mqsql_root_password
-      MYSQL_PASSWORD: mysql_password
-      MYSQL_DATABASE: mysql_database_name
-      MYSQL_USER: mysql_username
+      MYSQL_ROOT_PASSWORD: /run/secrets/mqsql_root_password
+      MYSQL_PASSWORD: /run/secrets/mysql_password
+      MYSQL_DATABASE: /run/secrets/mysql_database_name
+      MYSQL_USER: /run/secrets/mysql_username
     networks:
       - "proxy-network"
+    secrets:
+      - mysql_root_password
+      - mysql_password
+      - mysql_database_name
+      - mysql_username
 
   nextcloud:
     image: "nextcloud:24.0.1"
@@ -53,21 +58,27 @@ services:
       - nextcloud_db
     volumes:
       - blockstorage:/var/www/html/data
-      #- blockstorage_root1:/var/www/html
     networks:
       - "proxy-network"
     environment:
-      MYSQL_PASSWORD: mysql_password
-      MYSQL_DATABASE: mysql_database_name
-      MYSQL_USER: mysql_username
-      MYSQL_HOST: mysql_hostname
+      MYSQL_PASSWORD: /run/secrets/mysql_password
+      MYSQL_DATABASE: /run/secrets/mysql_database_name
+      MYSQL_USER: /run/secrets/mysql_username
+      MYSQL_HOST: /run/secrets/mysql_hostname
       VIRTUAL_HOST: "nextcloud.shivamnaik.de"
       VIRTUAL_PORT: "80"
       LETSENCRYPT_HOST: "nextcloud.shivamnaik.de"
-      LETSENCRYPT_EMAIL: letsencrypt_email
+      LETSENCRYPT_EMAIL: "ichbinshivamsnaik@outlook.com"
       NEXTCLOUD_TRUSTED_DOMAINS: "nextcloud.shivamnaik.de"
       NEXTCLOUD_DATA_DIR: /var/www/html/data
       OVERWRITEPROTOCOL: https
       OVERWRITECLIURL: https://nextcloud.shivamnaik.de
+    
+    secrets:
+      - mysql_password
+      - mysql_database_name
+      - mysql_username
+      - mysql_hostname
+      - letsencrypt_email
 
   
