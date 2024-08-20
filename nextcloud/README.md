@@ -4,7 +4,7 @@ Troubleshooting:
 - You need to update the trusted domains setting into the docker container, so that the nextcloud instance can be accessed through the internet without 'Untrusted Domain' error.
 - For this, run the following command:
   -     docker exec --user www-data -it <container_name> php occ config:system:set trusted_domains 10 --value="nextcloud.shivamnaik.de"
-- In case of nextcloud container get deleted accidentally, but the data directory is intact in the linux system,
+- In case the nextcloud container gets deleted accidentally, but the data directory is intact in the linux system,
   - Deploy a new instance of nextcloud container.
   - Create a new user.
   - Move all the files from previous accounts *files* folder to current user's 'files' folder.
