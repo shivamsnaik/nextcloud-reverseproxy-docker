@@ -19,3 +19,8 @@ Troubleshooting:
     ```
     docker exec -u www-data [nextcloud-container-name] php /var/www/html/occ security:bruteforce:reset [Public-IPV6-of-your-laptop]
     ```
+- If you get background job error in admin console, Cron jobs are not running correctly. In docker, crontab does not execute as expected. Hence, create a cronjob in host system to execute ```cron.php``` every 5 minutes, via ```docker exec```. Follow the following steps in you ubuntu system:
+    ```
+    $ sudo crontab -u ubuntu -e # This opens an editor to edit the cron tasks.
+    $ */5 * * * * docker exec -u www-data nextcloud php -f /var/www/html/cron.php
+    ```
