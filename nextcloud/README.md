@@ -11,3 +11,11 @@ Troubleshooting:
   - Open a bash shell to nextcloud container using:  
     -     docker-exec -u www-data <nextcloud_container> php occ files:scan --all
   - All the files will be rescanned and added to the new nextcloud folder. Now, all your files are recovered.
+- Sometimes, due to repeated trial-and-error of deploying and stopping the nextcloud container, your IP address is throttled by Nextcloud, thinking you are attacking via bruteforce. The error would look like:
+    ```
+    Your remote address has been identified as Public-IPV6-of-my-laptop- and is currently being throttled by bruteforce. which slows down the speed of various requests. If the remote address is not your address, it may be an indication that a proxy is not configured correctly. For more information,
+    ```
+    To fix this issue, you need to reset throttling for your IP address through bash into the container:  
+    ```
+    docker exec -u www-data [nextcloud-container-name] php /var/www/html/occ security:bruteforce:reset [Public-IPV6-of-your-laptop]
+    ```
